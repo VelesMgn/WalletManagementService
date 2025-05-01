@@ -1,5 +1,6 @@
 package org.example.walletmanagementservice.service.Impl;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.walletmanagementservice.dto.WalletBalanceResponse;
@@ -9,6 +10,7 @@ import org.example.walletmanagementservice.exception.WalletNotFoundException;
 import org.example.walletmanagementservice.model.Wallet;
 import org.example.walletmanagementservice.service.WalletService;
 import org.example.walletmanagementservice.service.database.WalletDatabaseService;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +24,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WalletServiceImpl implements WalletService {
     private final WalletDatabaseService walletDatabase;
+    private static final int MAX_RETRIES = 10;
 
     @Override
     public void processOperation(WalletOperationRequest request) {
-        Wallet wallet = walletDatabase.getWallet(request.getWalletId())
-                .orElseThrow(() -> new WalletNotFoundException(request.getWalletId()));
+        int retries = 0;
 
-        BigDecimal newBalance = changeBalance(request, wallet);
-        wallet.setBalance(newBalance);
+        while (true) {
+            try {
+                Wallet wallet = walletDatabase.getWallet(request.getWalletId())
+                        .orElseThrow(() -> new WalletNotFoundException(request.getWalletId()));
 
-        walletDatabase.updateWallet(wallet);
+                BigDecimal newBalance = changeBalance(request, wallet);
+                wallet.setBalance(newBalance);
+
+                walletDatabase.updateWallet(wallet);
+                return;
+            } catch (ObjectOptimisticLockingFailureException | OptimisticLockException e) {
+                if (++retries >= MAX_RETRIES) throw e;
+                log.warn("Optimistic lock failed, retrying ({})", retries);
+            }
+        }
     }
 
     @Override
@@ -89,7 +102,6 @@ public class WalletServiceImpl implements WalletService {
                 }
                 yield wallet.getBalance().subtract(request.getAmount());
             }
-            default -> throw new IllegalArgumentException("Unknown operation type: " + request.getOperationType());
         };
     }
 }

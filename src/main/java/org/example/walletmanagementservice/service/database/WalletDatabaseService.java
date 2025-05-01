@@ -15,10 +15,12 @@ import java.util.UUID;
 public class WalletDatabaseService {
     private final WalletRepository walletRepository;
 
+    @Transactional(readOnly = true)
     public Optional<Wallet> getWallet(UUID walletId) {
         return walletRepository.findWalletById(walletId);
     }
 
+    @Transactional
     public void updateWallet(Wallet wallet) {
         walletRepository.save(wallet);
     }
