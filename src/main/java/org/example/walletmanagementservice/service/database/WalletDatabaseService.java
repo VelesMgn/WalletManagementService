@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.walletmanagementservice.model.Wallet;
 import org.example.walletmanagementservice.repository.WalletRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -13,7 +14,20 @@ import java.util.UUID;
 public class WalletDatabaseService {
     private final WalletRepository walletRepository;
 
-    public Optional<Wallet> getWallet(UUID walletId) {
-        return null;
+    public Wallet getWallet(UUID walletId) {
+        return walletRepository.findWalletById(walletId);
+    }
+
+    public void updateWallet(Wallet wallet) {
+        walletRepository.save(wallet);
+    }
+
+    public List<Wallet> getAllWallet() {
+        return walletRepository.findAll();
+    }
+
+    @Transactional
+    public void deleteWallet(UUID walletId) {
+        walletRepository.deleteById(walletId);
     }
 }

@@ -2,7 +2,6 @@ package org.example.walletmanagementservice.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.OptimisticLocking;
 
 import java.math.BigDecimal;
 import java.util.UUID;
