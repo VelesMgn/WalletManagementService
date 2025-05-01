@@ -17,6 +17,6 @@ public class WalletOperationRequest {
     private OperationType operationType;
 
     @NotNull(message = "Amount cannot be null")
-    @DecimalMin(value = "0.0", message = "Balance must be positive")
+    @DecimalMin(value = "0.1", message = "Balance must be positive")
     private BigDecimal amount;
 }

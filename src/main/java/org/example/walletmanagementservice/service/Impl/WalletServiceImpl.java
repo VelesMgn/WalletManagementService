@@ -25,8 +25,8 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public void processOperation(WalletOperationRequest request) {
-        Wallet wallet = walletDatabase.getWallet(request.getWalletId());
-        if (wallet == null) throw new WalletNotFoundException(request.getWalletId());
+        Wallet wallet = walletDatabase.getWallet(request.getWalletId())
+                .orElseThrow(() -> new WalletNotFoundException(request.getWalletId()));
 
         BigDecimal newBalance = changeBalance(request, wallet);
         wallet.setBalance(newBalance);
@@ -37,8 +37,8 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional(readOnly = true)
     public WalletBalanceResponse getBalance(UUID walletId) {
-        Wallet wallet = walletDatabase.getWallet(walletId);
-        if (wallet == null) throw new WalletNotFoundException(walletId);
+        Wallet wallet = walletDatabase.getWallet(walletId)
+                .orElseThrow(() -> new WalletNotFoundException(walletId));
 
         return WalletBalanceResponse.builder()
                 .walletId(wallet.getId())
@@ -63,12 +63,12 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public List<WalletBalanceResponse> getAllWallets() {
-        return convertToDto(walletDatabase.getAllWallet());
+        return convertToDto(walletDatabase.getAllWallets());
     }
 
     @Override
     public void deleteWallet(UUID walletId) {
-        if(walletDatabase.getWallet(walletId) == null) throw new WalletNotFoundException(walletId);
+        if(walletDatabase.getWallet(walletId).isEmpty()) throw new WalletNotFoundException(walletId);
         walletDatabase.deleteWallet(walletId);
     }
 
@@ -81,18 +81,15 @@ public class WalletServiceImpl implements WalletService {
     }
 
     private BigDecimal changeBalance(WalletOperationRequest request, Wallet wallet) {
-        BigDecimal newBalance = BigDecimal.ZERO;
-
-        switch (request.getOperationType()){
-            case DEPOSIT -> newBalance = wallet.getBalance().add(request.getAmount());
+        return switch (request.getOperationType()) {
+            case DEPOSIT -> wallet.getBalance().add(request.getAmount());
             case WITHDRAW -> {
                 if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
                     throw new InsufficientFundsException(request.getWalletId());
                 }
-                newBalance = wallet.getBalance().subtract(request.getAmount());
+                yield wallet.getBalance().subtract(request.getAmount());
             }
-        }
-
-        return newBalance;
+            default -> throw new IllegalArgumentException("Unknown operation type: " + request.getOperationType());
+        };
     }
 }

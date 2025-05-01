@@ -20,7 +20,7 @@ import java.util.UUID;
 public class WalletController {
     private final WalletService walletService;
 
-    @PostMapping
+    @PostMapping("/operations")
     public ResponseEntity<Void> processOperation(@RequestBody @Valid WalletOperationRequest request) {
         log.info("WalletController calls walletService");
         walletService.processOperation(request);
@@ -41,7 +41,7 @@ public class WalletController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/get-all")
+    @GetMapping
     public ResponseEntity<List<WalletBalanceResponse>> getAllWallets() { // можно добавить domain.Page;
         log.info("WalletController calls getAllWallets");
         return ResponseEntity.ok(walletService.getAllWallets());

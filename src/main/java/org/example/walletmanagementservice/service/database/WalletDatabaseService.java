@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -14,7 +15,7 @@ import java.util.UUID;
 public class WalletDatabaseService {
     private final WalletRepository walletRepository;
 
-    public Wallet getWallet(UUID walletId) {
+    public Optional<Wallet> getWallet(UUID walletId) {
         return walletRepository.findWalletById(walletId);
     }
 
@@ -22,12 +23,12 @@ public class WalletDatabaseService {
         walletRepository.save(wallet);
     }
 
-    public List<Wallet> getAllWallet() {
+    public List<Wallet> getAllWallets() {
         return walletRepository.findAll();
     }
 
     @Transactional
     public void deleteWallet(UUID walletId) {
-        walletRepository.deleteById(walletId);
+        walletRepository.deleteWalletById(walletId);
     }
 }
