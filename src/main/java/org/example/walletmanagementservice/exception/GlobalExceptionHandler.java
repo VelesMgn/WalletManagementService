@@ -7,8 +7,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.Instant;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -16,14 +14,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleWalletNotFound(WalletNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("WALLET_NOT_FOUND", ex.getMessage(), Instant.now()));
+                .body(new ErrorResponse("WALLET_NOT_FOUND", ex.getMessage()));
     }
 
     @ExceptionHandler(InsufficientFundsException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientFunds(InsufficientFundsException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("INSUFFICIENT_FUNDS", ex.getMessage(), Instant.now()));
+                .body(new ErrorResponse("INSUFFICIENT_FUNDS", ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -32,7 +30,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("VALIDATION_ERROR",
-                        "Validation error: " + message, Instant.now()));
+                        "Validation error: " + message));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class) // Не валидный JSON
@@ -40,7 +38,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("INVALID_JSON",
-                        "Malformed or invalid JSON in request body", Instant.now()));
+                        "Malformed or invalid JSON in request body"));
     }
 
 
@@ -49,6 +47,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("INTERNAL_ERROR",
-                        "Unexpected error: " + ex.getMessage(), Instant.now()));
+                        "Unexpected error: " + ex.getMessage()));
     }
 }
