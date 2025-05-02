@@ -6,8 +6,7 @@ Java 17, Spring Boot, Maven, PostgreSQL, Hibernate,
 Lombok, Slf4j, Liquibase, JUnit, Docker
 ____
 
-__WalletManagementService__ - это backend-сервис для управления кошельками, построенный на Java и Spring Boot.  
-Сервис реализует основные функции работы с электронными кошельками:
+__WalletManagementService__ - это backend-сервис для управления кошельками, построенный на Java и Spring Boot. Сервис реализует основные функции работы с электронными кошельками:
 
 - Создание кошелька
 - Пополнение и списание средств
@@ -24,7 +23,7 @@ __WalletManagementService__ - это backend-сервис для управле�
 
 ### REST API:
 
-* POST /api/v1/wallets/operations - Проведение операции (пополнение или списание):    
+* POST `/api/v1/wallets/operations` - Проведение операции (пополнение или списание):    
 Пример тела запроса:
 ```  
   {
